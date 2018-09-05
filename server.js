@@ -3,6 +3,11 @@ const express = require('express');
 // Load Mongoose module
 const mongoose = require('mongoose');
 
+// Load body-parser to extract data in POST requests into req.body
+const bodyParser = require('body-parser');
+// Load passport module
+const passport = require('passport');
+
 // Load users.js module
 const users = require('./routes/api/users');
 // Load profile.js module
@@ -13,6 +18,11 @@ const posts = require('./routes/api/posts');
 // Create a new Express instance
 const app = express();
 
+// Middleware that only parses urlencoded
+app.use(bodyParser.urlencoded({extended: false}));
+// Middleware that only parses json
+app.use(bodyParser.json());
+
 // DB config
 const db = require('./config/keys').mongoURI;
 // Connect to MongoDB through mongoose
@@ -21,8 +31,10 @@ mongoose
   .then(() => console.log('MongoDB Connected')) // Success
   .catch(err => console.log(err)); // Error
 
-// GET request to home page prints Hello World
-app.get('/', (req, res) => res.send('Hello World!'));
+// Passport middleware
+app.use(passport.initialize());
+// Passport Config
+require('./config/passport')(passport);
 
 // Use middleware to handle routes via router objects
 app.use('/api/users', users);
